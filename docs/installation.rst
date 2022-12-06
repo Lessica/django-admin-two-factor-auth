@@ -15,7 +15,7 @@ Setup
 .. code-block:: python
 
     INSTALLED_APPS = (
-        'admin_two_factor.apps.TwoStepVerificationConfig',
+        'admin_two_factor.apps.TwoFactorAuthenticationConfig',
         'django.contrib.admin',
         ...
     )

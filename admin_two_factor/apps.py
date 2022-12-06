@@ -1,6 +1,7 @@
 from django.apps import AppConfig
+from django.utils.translation import gettext_lazy as _
 
 
-class TwoStepVerificationConfig(AppConfig):
+class TwoFactorAuthenticationConfig(AppConfig):
     name = 'admin_two_factor'
-    verbose_name = 'two factor'
+    verbose_name = _('two factor')

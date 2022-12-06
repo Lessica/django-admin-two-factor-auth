@@ -1,0 +1,135 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-12-07 04:05+0800\n"
+"PO-Revision-Date: 2022-12-07 04:07+0800\n"
+"Last-Translator: EDG <rachel@edgapp.com>\n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.2.2\n"
+
+#: admin.py:25
+msgid "Two Factor QR Code"
+msgstr "双因素认证二维码"
+
+#: admin.py:30
+msgid ""
+"Scan the following barcode with your phone’s OTP app (e.g. Google "
+"Authenticator)."
+msgstr ""
+"使用你 iOS/Android 上的 OTP 应用程序（例如 Google Authenticator）扫描以下条"
+"形码。"
+
+#: admin.py:31
+msgid "Install Google Authenticator?"
+msgstr "安装 Google Authenticator？"
+
+#: admin.py:45
+msgid "user added successfully"
+msgstr "用户添加成功"
+
+#: apps.py:7
+msgid "two factor"
+msgstr "双因素认证"
+
+#: middleware.py:20
+msgid "Your 2FA session has expired. Please log in again."
+msgstr "您的双因素认证会话已过期。请重新登录。"
+
+#: models.py:17
+msgid "User"
+msgstr "用户"
+
+#: models.py:18
+msgid "secret key"
+msgstr "密钥"
+
+#: models.py:19
+msgid "code"
+msgstr "代码"
+
+#: models.py:20
+msgid ""
+"You must enter the code here to active/deactivate two factor authentication."
+msgstr "你必须在此处输入代码才能激活/停用双因素认证。"
+
+#: models.py:21
+msgid "is active?"
+msgstr "是否活跃？"
+
+#: models.py:23
+msgid "created time"
+msgstr "创建于"
+
+#: models.py:24
+msgid "updated time"
+msgstr "更新于"
+
+#: models.py:27
+msgid "two factor authentication user"
+msgstr "用户"
+
+#: models.py:28
+msgid "two factor authentication users"
+msgstr "用户"
+
+#: models.py:32 models.py:34
+msgid "The code field is required."
+msgstr "代码字段为必填项。"
+
+#: models.py:42 models.py:49
+msgid "The code is wrong. please try again."
+msgstr "代码错误，请重试。"
+
+#: views.py:21 views.py:38
+msgid "Username and password are both required."
+msgstr "用户名和密码都是必需的。"
+
+#: views.py:26
+msgid "Logged in successfully, but 2FA is required."
+msgstr "已成功登录，但需要进行双因素认证。"
+
+#: views.py:28 views.py:48 views.py:54
+msgid "Logged in successfully."
+msgstr "登录成功。"
+
+#: views.py:29 views.py:55
+msgid "Maybe something is wrong."
+msgstr "也许有什么不对劲。"
+
+#: views.py:41 views.py:52
+msgid "Please provide a valid 2FA code, which is required."
+msgstr "请提供有效的双因素认证代码。"
+
+#~ msgid "Please correct the error below."
+#~ msgstr "请更正下列错误。"
+
+#~ msgid "Please correct the errors below."
+#~ msgstr "请更正下列错误。"
+
+#, python-format
+#~ msgid ""
+#~ "You are authenticated as %(username)s, but are not authorized to access "
+#~ "this page. Would you like to login to a different account?"
+#~ msgstr ""
+#~ "您当前以 %(username)s 登录，但是没有这个页面的访问权限。您想使用另外一个"
+#~ "账号登录吗？"
+
+#~ msgid "Forgotten your password or username?"
+#~ msgstr "忘记了您的密码或用户名？"
+
+#~ msgid "Log in"
+#~ msgstr "登录"
+
+#~ msgid "two factor authentication"
+#~ msgstr "双因素验证"

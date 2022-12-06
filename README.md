@@ -1,12 +1,12 @@
 # Django Admin Two-Factor Authentication
 
-**Django Admin Two-Factor Authentication**, allows you to login django admin with google authenticator.
+**Django Admin Two-Factor Authentication**, allows you to login django admin with Google authenticator.
 
 <br>
 
 ## Why Django Admin Two-Factor Authentication?
 
-- Using google authenticator to login your Django admin.
+- Using google authenticator to log in your Django admin.
 - Used jquery confirm dialog to get code.
 - Simple interface
 - Easy integration
@@ -27,28 +27,38 @@ $ pip install django-admin-two-factor
 $ easy_install django-admin-two-factor
 ```
 
-* Add 'admin_two_factor' application to the INSTALLED_APPS setting of your Django project `settings.py` file (note it should be before 'django.contrib.admin'):
+* Add `admin_two_factor` application to the `INSTALLED_APPS` setting of your Django project `settings.py` file (note it should be before `django.contrib.admin`):
 
 ```python
 INSTALLED_APPS = (
-'admin_two_factor.apps.TwoStepVerificationConfig',
-'django.contrib.admin',
-# ...
+    'admin_two_factor.apps.TwoFactorAuthenticationConfig',
+    'django.contrib.admin',
+    # ...
 )
+```
+
+* Add `admin_two_factor.middleware.TwoFactorMiddleware` to the `MIDDLEWARE` setting of your Django project `settings.py` file (note it should be after `django.contrib.messages.middleware.MessageMiddleware`):
+
+```python
+MIDDLEWARE = [
+    # ...
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'admin_two_factor.middleware.TwoFactorMiddleware',
+]
 ```
 
 * Migrate `admin_two_factor`:
 
 ```bash
 $ python manage.py migrate admin_two_factor
-$ # or
+# or
 $ python manage.py syncdb
 ```
 
 * Add `‍‍‍‍ADMIN_TWO_FACTOR_NAME` in your `settings.py`. This value will be displayed in [Google Authenticator](https://support.google.com/accounts/answer/1066447?hl=en).
 
 ```python
-ADMIN_TWO_FACTOR_NAME = 'PROJECT_NAME'
+ADMIN_2FA_NAME = 'PROJECT_NAME'
 ```
 
 * Include the **Admin Two Factor** URL config in `PROJECT_CORE/urls.py`:
@@ -56,15 +66,10 @@ ADMIN_TWO_FACTOR_NAME = 'PROJECT_NAME'
 ```python
 # Django version >= 2
 urlpatterns = [
-path('admin/', admin.site.urls),
-path('two_factor/', include(('admin_two_factor.urls', 'admin_two_factor'), namespace='two_factor')),
-# ...
+    path('admin/', admin.site.urls),
+    path('two_factor/', include(('admin_two_factor.urls', 'admin_two_factor'), namespace='two_factor')),
+    # ...
 ]
-
-# Django version = 1
-# urlpatterns = [
-# url(r'^admin/', include(admin.site.urls)),
-# url(r'^two_factor/', include(('admin_two_factor.urls', 'admin_two_factor'), namespace='two_factor')),
 ```
 
 * Collect static if you are in production environment:
@@ -88,7 +93,7 @@ $ # Create the superuser
 $ python manage.py createsuperuser
 $
 $ # Start the application (development mode)
-$ python manage.py runserver # default port 8000
+$ python manage.py runserver  # default port 8000
 ```
 
 * Access the `admin` section in the browser: `http://127.0.0.1:8000/`

@@ -1,15 +1,7 @@
-import django
-from admin_two_factor.views import TwoStepVerification
+from django.urls import path
 
-if django.VERSION[0] >= 2:
-    from django.urls import path
+from admin_two_factor.views import TwoFactorAuthentication
 
-    urlpatterns = [
-        path('verification/', TwoStepVerification.as_view(), name='verification'),
-    ]
-else:
-    from django.conf.urls import url
-
-    urlpatterns = [
-        url(r'^verification/', TwoStepVerification.as_view(), name='verification'),
-    ]
+urlpatterns = [
+    path('2fa/', TwoFactorAuthentication.as_view(), name='2fa'),
+]
