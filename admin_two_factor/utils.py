@@ -46,4 +46,5 @@ def is_2fa_expired(request, now=None):
     if ex_time is None:
         return True
     now_at = datetime.datetime.now() if now is None else now
-    return ex_time <= datetime_to_stamp(now_at)
+    ex_now_at = datetime_to_stamp(now_at)
+    return ex_time <= ex_now_at

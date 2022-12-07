@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin, messages
 from django.shortcuts import redirect
 from django.utils.html import format_html
@@ -7,8 +8,18 @@ from admin_two_factor.models import TwoFactorAuthentication
 from admin_two_factor.utils import set_2fa_expiration
 
 
+class TwoFactorAuthenticationForm(forms.ModelForm):
+    class Meta:
+        model = TwoFactorAuthentication
+        fields = '__all__'
+        widgets = {
+            'code': forms.TextInput(attrs={'autocomplete': 'off'}),
+        }
+
+
 @admin.register(TwoFactorAuthentication)
 class TwoFactorAuthenticationAdmin(admin.ModelAdmin):
+    form = TwoFactorAuthenticationForm
     list_display = ['user', 'is_active', 'created_time']
     raw_id_fields = ['user']
     list_filter = ['is_active', 'created_time']

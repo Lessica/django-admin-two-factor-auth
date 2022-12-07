@@ -1,55 +1,86 @@
-from urllib.parse import parse_qsl
-
-from django.contrib.auth import authenticate
-from django.http import JsonResponse
-from django.utils.translation import gettext as _
+from django.contrib import admin
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import logout_then_login, RedirectURLMixin
+from django.http import HttpResponseRedirect
+from django.template.response import TemplateResponse
+from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.utils.translation import gettext as gettext
 from django.views import View
+from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.debug import sensitive_post_parameters
 
-from admin_two_factor.utils import set_2fa_expiration
+from admin_two_factor.forms import TwoFactorAuthenticationForm
+from admin_two_factor.utils import set_2fa_expiration, is_2fa_expired
 
 
-class TwoFactorAuthentication(View):
+@never_cache
+@csrf_protect
+def logout(request):
+    return logout_then_login(request, "admin:login")
 
-    @csrf_protect
+
+class TwoFactorAuthentication(RedirectURLMixin, View):
+    next_page = "admin:index"
+
+    def __init__(self, **kwargs):
+        self.site_title = gettext("Django site admin")
+        self.site_header = admin.site.site_header
+        super().__init__(**kwargs)
+
+    def each_context(self, request):
+        script_name = request.META["SCRIPT_NAME"]
+        return {
+            "site_title": self.site_title,
+            "site_header": self.site_header,
+            "site_url": script_name,
+            "has_permission": True,
+            "available_apps": list(),
+            "is_popup": False,
+            "is_nav_sidebar_enabled": False,
+        }
+
+    def redirect_to_success_url(self, request):
+        redirect_to = self.get_success_url()
+        if redirect_to == self.request.path:
+            redirect_to = self.get_default_redirect_url()
+        return HttpResponseRedirect(redirect_to)
+
+    @method_decorator(never_cache)
+    @method_decorator(login_required(redirect_field_name="r", login_url="admin:login"))
+    def get(self, request):
+        if not is_2fa_expired(request):
+            return self.redirect_to_success_url(request)
+        return TemplateResponse(request, "admin_two_factor/login.html", context={
+            **self.each_context(request),
+            "title": gettext("Two-factor authentication"),
+            "subtitle": None,
+            "app_path": request.get_full_path(),
+            "username": request.user.get_username(),
+            "form": TwoFactorAuthenticationForm(),
+            "next": request.GET.get(self.redirect_field_name, reverse(self.next_page)),
+        })
+
+    @method_decorator(sensitive_post_parameters())
+    @method_decorator(csrf_protect)
+    @method_decorator(never_cache)
+    @method_decorator(login_required(redirect_field_name="r", login_url="admin:login"))
     def post(self, request):
-        params = dict(parse_qsl(request.body.decode()))
-        username = params.get('username', None)
-        password = params.get('password', None)
-        if not username or not password:
-            return JsonResponse(
-                {'validated': False, 'message': _('Username and password are both required.')})
-        user = authenticate(request=request, username=username, password=password)
-        if user and user.is_staff:
-            if hasattr(user, 'two_factor') and user.two_factor.is_active:
-                return JsonResponse({'validated': True, '2fa-required': True, '2fa-passed': False,
-                                     'message': _('Logged in successfully, but 2FA is required.')})
-            return JsonResponse({'validated': True, '2fa-required': False, '2fa-passed': False,
-                                 'message': _('Logged in successfully.')})
-        return JsonResponse({'validated': False, 'message': _('Maybe something is wrong.')})
-
-    @csrf_protect
-    def put(self, request):
-        params = dict(parse_qsl(request.body.decode()))
-        tfa_code = params.get('2fa-code', None)
-        username = params.get('username', None)
-        password = params.get('password', None)
-        if not username or not password:
-            return JsonResponse({'validated': False, 'message': _('Username and password are both required.')})
-        if not tfa_code:
-            return JsonResponse(
-                {'validated': False, 'message': _('Please provide a valid 2FA code, which is required.')})
-        user = authenticate(request=request, username=username, password=password)
-        if user and user.is_staff:
-            if hasattr(user, 'two_factor') and user.two_factor.is_active:
-                if user.two_factor.verify(tfa_code):
-                    set_2fa_expiration(request)
-                    return JsonResponse({'validated': True, '2fa-required': True, '2fa-passed': True,
-                                         'message': _('Logged in successfully.')})
-                else:
-                    return JsonResponse(
-                        {'validated': True, '2fa-required': True, '2fa-passed': False,
-                         'message': _('Please provide a valid 2FA code, which is required.')})
-            return JsonResponse({'validated': True, '2fa-required': False, '2fa-passed': False,
-                                 'message': _('Logged in successfully.')})
-        return JsonResponse({'validated': False, 'message': _('Maybe something is wrong.')})
+        if not is_2fa_expired(request):
+            return self.redirect_to_success_url(request)
+        form = TwoFactorAuthenticationForm(request, data=request.POST)
+        if form.is_valid():  # 2fa code is valid
+            set_2fa_expiration(request)
+            return self.redirect_to_success_url(request)
+        # 2fa code is invalid, error message is already set in form
+        return TemplateResponse(request, "admin_two_factor/login.html", context={
+            **self.each_context(request),
+            "title": gettext("Two-factor authentication"),
+            "subtitle": None,
+            "app_path": request.get_full_path(),
+            "username": request.user.get_username(),
+            "form": form,
+            "next": request.POST.get(self.redirect_field_name,
+                                     request.GET.get(self.redirect_field_name, reverse(self.next_page))),
+        })

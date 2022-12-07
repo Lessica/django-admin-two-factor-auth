@@ -14,14 +14,42 @@ from admin_two_factor import settings
 
 
 class TwoFactorAuthentication(models.Model):
-    user = models.OneToOneField(User, on_delete=models.DO_NOTHING, related_name='two_factor', verbose_name=_('User'))
-    secret = models.CharField(_('secret key'), max_length=20, null=True, blank=True, unique=True, editable=False)
-    code = models.CharField(_('code'), max_length=8, null=True, blank=True,
-                            help_text=_('You must enter the code here to active/deactivate two factor authentication.'))
-    is_active = models.BooleanField(_('is active?'), default=False)
+    user = models.OneToOneField(
+        User,
+        on_delete=models.DO_NOTHING,
+        related_name='two_factor',
+        verbose_name=_('user'),
+    )
 
-    created_time = models.DateTimeField(_('created time'), auto_now_add=True)
-    updated_time = models.DateTimeField(_('updated time'), auto_now=True)
+    secret = models.CharField(
+        _('secret key'),
+        max_length=20,
+        null=True,
+        blank=True,
+        unique=True,
+        editable=False,
+    )
+    code = models.CharField(
+        _('code'),
+        max_length=8,
+        null=True,
+        blank=True,
+        help_text=_('You must enter the code here to active/deactivate two factor authentication.'),
+    )
+
+    is_active = models.BooleanField(
+        _('is active?'),
+        default=False,
+    )
+
+    created_time = models.DateTimeField(
+        _('created time'),
+        auto_now_add=True,
+    )
+    updated_time = models.DateTimeField(
+        _('updated time'),
+        auto_now=True,
+    )
 
     class Meta:
         verbose_name = _('two factor authentication user')
