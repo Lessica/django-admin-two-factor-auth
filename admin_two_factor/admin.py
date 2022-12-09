@@ -25,20 +25,19 @@ class TwoFactorAuthenticationAdmin(admin.ModelAdmin):
     list_select_related = ['user']
 
     def qrcode(self, obj):
-        secret_key, qrcode = obj.get_qrcode
-        if qrcode:
+        secret_key, qr_link = obj.get_qrcode
+        if qr_link:
             return format_html(
                 "<img src=\"data:image/png;base64,{qrcode}\" width=\"200\" alt=\"two factor authentication\">",
-                qrcode=qrcode)
-
+                qrcode=qr_link)
     qrcode.short_description = _('Two Factor QR Code')
 
     def get_form(self, request, obj=None, **kwargs):
         help_texts = {'qrcode': format_html(
-            "%s <a href=\"https://support.google.com/accounts/answer/1066447?hl=en\" target=\"_blank\">%s</a>" % (
-                _("Scan the following barcode with your phone’s OTP app (e.g. Google Authenticator)."),
-                _("Install Google Authenticator?")
-            ))}
+            "{desc} <a href=\"https://support.google.com/accounts/answer/1066447?hl=en\" target=\"_blank\">{link}</a>",
+                desc=_("Scan the following barcode with your phone’s OTP app (e.g. Google Authenticator)."),
+                link=_("Install Google Authenticator?")
+            )}
         kwargs.update({'help_texts': help_texts})
         return super(TwoFactorAuthenticationAdmin, self).get_form(request, obj, **kwargs)
 
