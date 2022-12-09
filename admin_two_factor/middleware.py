@@ -13,18 +13,19 @@ class TwoFactorMiddleware:
         next_path = None
         this_path = request.path_info
         now_login_page = False
-        user = request.user
         url_resolver = resolve(request.path_info)
         if (url_resolver.app_name == 'admin') and \
-                not (url_resolver.url_name == 'login' or url_resolver.url_name == 'logout'):
-            if user and user.is_authenticated and user.is_staff:
-                if hasattr(user, 'two_factor') and user.two_factor.is_active:
-                    if is_2fa_expired(request):
+                not (url_resolver.url_name == 'jsi18n' or url_resolver.url_name == 'login' or url_resolver.url_name == 'logout'):
+            if is_2fa_expired(request):
+                user = request.user
+                if user and user.is_authenticated and user.is_staff:
+                    if hasattr(user, 'two_factor') and user.two_factor.is_active:
                         return redirect_to_login(this_path, '2fa:login')
-                    else:
-                        set_2fa_expiration(request)
+            else:
+                set_2fa_expiration(request)
         elif url_resolver.app_name == 'admin' and url_resolver.url_name == 'login':
             if request.method == 'POST':
+                user = request.user
                 if not user or not user.is_authenticated:
                     next_path = request.POST.get('next', None)
                     now_login_page = True

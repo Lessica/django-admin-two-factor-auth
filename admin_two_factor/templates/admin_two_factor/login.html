@@ -6,33 +6,12 @@
     <link rel="stylesheet" href="{% static "admin_two_factor/css/login.css" %}">{% endblock %}
 
 {% block content %}
-    {% if form.errors and not form.non_field_errors %}
-        <p class="errornote">
-            {% if form.errors.items|length == 1 %}{% translate "Please correct the error below." %}{% else %}
-                {% translate "Please correct the errors below." %}{% endif %}
-        </p>
-    {% endif %}
+    {% if form.errors and not form.non_field_errors %}<p class="errornote">{% if form.errors.items|length == 1 %}{% translate "Please correct the error below." %}{% else %}{% translate "Please correct the errors below." %}{% endif %}</p>{% endif %}
 
-    {% if form.non_field_errors %}
-        {% for error in form.non_field_errors %}
-            <p class="errornote">
-                {{ error }}
-            </p>
-        {% endfor %}
-    {% endif %}
+    {% if form.non_field_errors %}{% for error in form.non_field_errors %}<p class="errornote">{{ error }}</p>{% endfor %}{% endif %}
 
     <div id="content-main">
-
-        {% if user.is_authenticated %}
-            <p class="errornote">
-                {% blocktranslate trimmed %}
-                    You are authenticated as {{ username }}, but you have enabled two-factor
-                    authentication for this account. Please open the two-factor authentication
-                    application (e.g. Google Authenticator) on your phone and enter the 6-digit
-                    2FA code below.
-                {% endblocktranslate %}
-            </p>
-        {% endif %}
+        {% if user.is_authenticated %}<p class="errornote">{% blocktranslate trimmed %}You are authenticated as {{ username }}, but you have enabled two-factor authentication for this account. Please open the two-factor authentication application (e.g. Google Authenticator) on your phone and enter the 6-digit 2FA code below.{% endblocktranslate %}</p>{% endif %}
 
         <form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
             <div class="form-row">
@@ -50,6 +29,5 @@
                 <input type="submit" value="{% translate 'Log in' %}">
             </div>
         </form>
-
     </div>
 {% endblock %}
