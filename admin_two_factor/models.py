@@ -14,6 +14,11 @@ from admin_two_factor import settings
 
 
 class TwoFactorAuthentication(models.Model):
+
+    class Meta:
+        verbose_name = _('two factor authentication user')
+        verbose_name_plural = _('two factor authentication users')
+
     user = models.OneToOneField(
         User,
         on_delete=models.DO_NOTHING,
@@ -29,6 +34,7 @@ class TwoFactorAuthentication(models.Model):
         unique=True,
         editable=False,
     )
+
     code = models.CharField(
         _('code'),
         max_length=8,
@@ -46,14 +52,11 @@ class TwoFactorAuthentication(models.Model):
         _('created time'),
         auto_now_add=True,
     )
+
     updated_time = models.DateTimeField(
         _('updated time'),
         auto_now=True,
     )
-
-    class Meta:
-        verbose_name = _('two factor authentication user')
-        verbose_name_plural = _('two factor authentication users')
 
     def clean(self):
         if self.is_active and not self.secret and not self.code:

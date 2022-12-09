@@ -22,9 +22,7 @@ class TwoFactorAuthenticationAdmin(admin.ModelAdmin):
     form = TwoFactorAuthenticationForm
     list_display = ['user', 'is_active', 'created_time']
     raw_id_fields = ['user']
-    list_filter = ['is_active', 'created_time']
-    fieldsets = ((None, {'fields': ('user', 'is_active', 'code', 'qrcode'), }),)
-    readonly_fields = ['qrcode']
+    list_select_related = ['user']
 
     def qrcode(self, obj):
         secret_key, qrcode = obj.get_qrcode
@@ -45,12 +43,91 @@ class TwoFactorAuthenticationAdmin(admin.ModelAdmin):
         return super(TwoFactorAuthenticationAdmin, self).get_form(request, obj, **kwargs)
 
     def get_fieldsets(self, request, obj=None):
-        fieldsets = self.fieldsets
         if not obj:
-            fieldsets = ((None, {'fields': ('user',), }),)
-        elif obj and obj.secret:
-            fieldsets = ((None, {'fields': ('user', 'code', 'is_active'), }),)
-        return fieldsets
+            if request.user.is_superuser:
+                return [
+                    (None, {
+                        'fields': ['user', ],
+                    }),
+                ]
+            return []
+        else:
+            if obj.secret:
+                if request.user.is_superuser:
+                    return [
+                        (None, {
+                            'fields': ['user', 'is_active', 'code'],
+                        }),
+                        (_("History"), {
+                            "fields": ["created_time", "updated_time"],
+                        }),
+                    ]
+                else:
+                    return [
+                        (None, {
+                            'fields': ['is_active', 'code'],
+                        }),
+                        (_("History"), {
+                            "fields": ["created_time", "updated_time"],
+                        }),
+                    ]
+            else:
+                if request.user.is_superuser:
+                    return [
+                        (None, {
+                            'fields': ['user', 'is_active', 'code', 'qrcode'],
+                        }),
+                        (_("History"), {
+                            "fields": ["created_time", "updated_time"],
+                        }),
+                    ]
+                else:
+                    return [
+                        (None, {
+                            'fields': ['is_active', 'code', 'qrcode'],
+                        }),
+                        (_("History"), {
+                            "fields": ["created_time", "updated_time"],
+                        }),
+                    ]
+
+    def get_list_filter(self, request):
+        if request.user.is_superuser:
+            return ['is_active', 'created_time']
+        return []
+
+    def get_search_fields(self, request):
+        if request.user.is_superuser:
+            return ['user__username']
+        return []
+
+    def get_queryset(self, request):
+        qs = super(TwoFactorAuthenticationAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(user=request.user)
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = ['created_time', 'updated_time']
+        if request.user.is_superuser:
+            readonly_fields.append('user')
+        readonly_fields.append('qrcode')
+        return readonly_fields
+
+    def has_add_permission(self, request):
+        return request.user.is_superuser
+
+    def has_change_permission(self, request, obj=None):
+        return obj is None or obj.user == request.user or request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_view_permission(self, request, obj=None):
+        return obj is None or obj.user == request.user or request.user.is_superuser
+
+    def has_module_permission(self, request):
+        return True
 
     def response_add(self, request, obj, post_url_continue=None):
         self.message_user(request, _('user added successfully'), level=messages.SUCCESS)
