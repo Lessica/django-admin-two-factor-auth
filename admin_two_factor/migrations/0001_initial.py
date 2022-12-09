@@ -26,11 +26,11 @@ class Migration(migrations.Migration):
                 ('created_time', models.DateTimeField(auto_now_add=True, verbose_name='created time')),
                 ('updated_time', models.DateTimeField(auto_now=True, verbose_name='updated time')),
                 ('user', models.OneToOneField(on_delete=django.db.models.deletion.DO_NOTHING, related_name='two_factor',
-                                              to=settings.AUTH_USER_MODEL)),
+                                              to=settings.AUTH_USER_MODEL, verbose_name='user')),
             ],
             options={
-                'verbose_name': 'two factor authentication',
-                'verbose_name_plural': 'two factor authentication',
+                'verbose_name': 'two factor authentication user',
+                'verbose_name_plural': 'two factor authentication users',
             },
         ),
     ]

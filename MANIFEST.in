@@ -1,5 +1,6 @@
 include LICENSE
 include README.rst
+recursive-include admin_two_factor/locale *
 recursive-include admin_two_factor/static *
 recursive-include admin_two_factor/templates *
 recursive-include docs *
