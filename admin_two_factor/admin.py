@@ -21,7 +21,7 @@ class TwoFactorAuthenticationForm(forms.ModelForm):
 class TwoFactorAuthenticationAdmin(admin.ModelAdmin):
     form = TwoFactorAuthenticationForm
     list_display = ['user', 'is_active', 'created_time']
-    raw_id_fields = ['user']
+    autocomplete_fields = ['user']
     list_select_related = ['user']
 
     def qrcode(self, obj):
@@ -109,7 +109,7 @@ class TwoFactorAuthenticationAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = ['created_time', 'updated_time']
-        if request.user.is_superuser:
+        if obj is not None or not request.user.is_superuser:
             readonly_fields.append('user')
         readonly_fields.append('qrcode')
         return readonly_fields
