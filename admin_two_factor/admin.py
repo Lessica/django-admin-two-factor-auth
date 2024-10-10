@@ -16,6 +16,14 @@ class TwoFactorAuthenticationForm(forms.ModelForm):
             'code': forms.TextInput(attrs={'autocomplete': 'off'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request", None)
+        if "initial" in kwargs:
+            initial_dict = kwargs["initial"]
+            if self.request is not None:
+                initial_dict["user"] = self.request.user
+        super(TwoFactorAuthenticationForm, self).__init__(*args, **kwargs)
+
 
 @admin.register(TwoFactorAuthentication)
 class TwoFactorAuthenticationAdmin(admin.ModelAdmin):
@@ -39,7 +47,12 @@ class TwoFactorAuthenticationAdmin(admin.ModelAdmin):
                 link=_("Install Google Authenticator?")
             )}
         kwargs.update({'help_texts': help_texts})
-        return super(TwoFactorAuthenticationAdmin, self).get_form(request, obj, **kwargs)
+        subform = super(TwoFactorAuthenticationAdmin, self).get_form(request, obj, **kwargs)
+        class TwoFactorAuthenticationFormWithRequest(subform):
+            def __new__(cls, *args, **kwargs):
+                kwargs['request'] = request
+                return subform(*args, **kwargs)
+        return TwoFactorAuthenticationFormWithRequest
 
     def get_fieldsets(self, request, obj=None):
         if not obj:
